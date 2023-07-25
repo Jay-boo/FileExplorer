@@ -1,6 +1,7 @@
 use std::fs::DirEntry;
+use std::path::PathBuf;
 use std::{io::Stdout, array::from_fn};
-use std::{path, fs};
+use std::{path, fs, env};
 
 use termion::raw::RawTerminal;
 use tui::{Terminal, backend::TermionBackend};
@@ -14,7 +15,9 @@ use crate::files::DirectoryItem;
     pub max_file_selection :usize, //Not negative integer type 
     pub directory_content: Vec<DirectoryItem>,
     pub window_height:u16,
-    pub command_buffer:Vec<char>
+    pub command_buffer:Vec<char>,
+    pub preview_content:Option<String>
+    // pub home_directory:PathBuf
 
     
  }
@@ -22,9 +25,15 @@ use crate::files::DirectoryItem;
 impl App{
     pub fn new(terminal: Terminal<TermionBackend<RawTerminal<Stdout>>>) -> App{
 
-        let current_directory=path::PathBuf::from("./");
+        // let current_directory=path::PathBuf::from("./");
+        
         let window_height=terminal.size().unwrap().height -5;
         // println!("actual path : {}\n -------",current_directory.display());
+        let mut current_directory=env::current_dir();
+        let current_directory=match current_directory{
+            Ok(val)=> val,
+            _=>path::PathBuf::new()
+        };
 
         let mut app=App{
             current_directory:current_directory,
@@ -33,10 +42,10 @@ impl App{
             max_file_selection:0,
             directory_content:Vec::new(),
             window_height:window_height,
-            command_buffer:Vec::new()
+            command_buffer:Vec::new(),
+            preview_content:Some(String::from("")),
         };
         app.populate_files();
-
         app
 
     }
@@ -81,6 +90,15 @@ impl App{
                 }
             }
         }
+
+    }
+
+
+    pub fn move_back_directory(&mut self){
+        let current_directory: &str= self.current_directory.to_str().unwrap();
+
+        
+
 
     }
 

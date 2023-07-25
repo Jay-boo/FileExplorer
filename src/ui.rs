@@ -6,7 +6,7 @@ use tui::layout::Direction;
 use tui::style::{Style, Modifier, Color};
 use tui::widgets::{Block,Text, Borders};
 use tui::{layout::{Layout, Constraint, Rect}, Frame};
- use tui::widgets::Widget;
+use tui::widgets::Widget;
 
 pub fn draw(app:&mut App ) -> Result<(),io::Error> {
     let command_string=app.get_command_buffer_as_string();
@@ -14,10 +14,11 @@ pub fn draw(app:&mut App ) -> Result<(),io::Error> {
         current_directory,
         terminal,
         selection_index,
+        max_file_selection,
         directory_content,
         window_height,
         command_buffer,
-    ..
+        preview_content,
     }= app;
     
     terminal.hide_cursor()?;
@@ -62,20 +63,42 @@ pub fn draw_file_list<B: tui::backend::Backend>(
     area:Rect,
     files:&Vec<DirectoryItem>,
     selected_file:&Option<usize>,
-    current_directory:&PathBuf){
+    current_directory:&PathBuf
+    ){
+
     let mut names : Vec<Text> =Vec::new();
     let mut sizes: Vec<Text> = Vec::new();
-    let inner_rect= Rect::new(
-        area.x+1,
-        area.y+1,
-        area.width -1,
-        area.height -1
+
+    let area_split:Vec<Rect>=vec![
+        Rect::new(area.x, area.y, area.width/2, area.height),
+        Rect::new(area.x+area.width/2, area.y, area.width/2, area.height)
+    ];
+
+    let inner_rects= vec![
+        Rect::new(
+        area_split[0].x+1,
+        area_split[0].y+1,
+        area_split[0].width -1,
+        area_split[0].height -1
         
-    );
+    ),
+        Rect::new(
+        area_split[1].x+1,
+        area_split[1].y+1,
+        area_split[1].width -1,
+        area_split[1].height -1
+        
+    )];
+
     Block::default()
         .borders(Borders::ALL)
-        .title(format!("Current context - {}","hello").as_ref())
-        .render(frame,area);
+        .title(format!("🔎 {} ",current_directory.to_string_lossy().replace("/home/jay", "~")).as_ref())
+        .render(frame,area_split[0]);
+
+    Block::default()
+        .borders(Borders::ALL)
+        .title("File preview")
+        .render(frame,area_split[1]);
     if files.len() !=0{
          for file in files {
             match file {
@@ -127,7 +150,7 @@ pub fn draw_file_list<B: tui::backend::Backend>(
         let chunks=Layout::default()
             .direction(Direction::Horizontal)
             .constraints(constraints)
-            .split(inner_rect);
+            .split(inner_rects[0]);
 
         for i in 0..=columns -1 {
             let height=(area.height -2) as usize;
