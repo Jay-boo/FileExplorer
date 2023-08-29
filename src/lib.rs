@@ -17,15 +17,24 @@ mod tests {
             Ok(content)=>content,
             Err(content)=>"".to_string()
         };
+        let max_line_length:usize=40;
 
         println!("go content  :{} length :{}",content,content.len()); 
-        let mut substrings:Vec<String>=Vec::new();
-        let substring_size:usize=5;
-
-        for i in (0..content.len()).step_by(substring_size){
-            let substring:String=content.chars().skip(i).take(substring_size).collect();
-            substrings.push(substring);
+        let mut substrings:Vec<String>=content.split('\n').map(|x| x.to_string()).collect();
+        for s in &mut substrings{
+            if s.len() >max_line_length{
+                s.truncate(max_line_length);
+            }
         }
+
+
+        // let mut substrings:Vec<String>=Vec::new();
+        // let substring_size:usize=5;
+        //
+        // for i in (0..content.len()).step_by(substring_size){
+        //     let substring:String=content.chars().skip(i).take(substring_size).collect();
+        //     substrings.push(substring);
+        // }
         println!("Substrings: {:?}", substrings);
 
 

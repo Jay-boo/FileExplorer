@@ -100,7 +100,7 @@ pub fn draw_file_list<B: tui::backend::Backend>(
         .title("File preview")
         .render(frame,area_split[1]);
 
-    let content:String= match get_file_content(DirectoryItem::File(("./src/text.txt".to_string(),0))){
+    let content:String= match get_file_content(DirectoryItem::File(("./src/main.rs".to_string(),0))){
         Ok(content)=>content,
         Err(content)=>"".to_string()
     };
@@ -109,7 +109,8 @@ pub fn draw_file_list<B: tui::backend::Backend>(
 
     for i in (0..content.len()).step_by(substring_size){
         let substring:String=content.chars().skip(i).take(substring_size).collect();
-        substrings.push(Text::raw(substring));
+        substrings.push(Text::styled(substring,Style::default().fg(Color::Blue) ));
+        // substrings.push(Text::raw(substring));
     }
     tui::widgets::Paragraph::new(substrings.iter()).wrap(false).render(frame, inner_rects[1]);
 
