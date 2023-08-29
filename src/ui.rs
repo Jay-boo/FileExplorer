@@ -68,6 +68,7 @@ pub fn draw_file_list<B: tui::backend::Backend>(
 
     let mut names : Vec<Text> =Vec::new();
     let mut sizes: Vec<Text> = Vec::new();
+    let mut paths: Vec<String> = Vec::new();
 
     let area_split:Vec<Rect>=vec![
         Rect::new(area.x, area.y, area.width/2, area.height),
@@ -100,19 +101,19 @@ pub fn draw_file_list<B: tui::backend::Backend>(
         .title("File preview")
         .render(frame,area_split[1]);
 
-    let content:String= match get_file_content(DirectoryItem::File(("./src/main.rs".to_string(),0))){
-        Ok(content)=>content,
-        Err(content)=>"".to_string()
-    };
-    let mut substrings:Vec<Text>=Vec::new();
-    let substring_size:usize=5;
-
-    for i in (0..content.len()).step_by(substring_size){
-        let substring:String=content.chars().skip(i).take(substring_size).collect();
-        substrings.push(Text::styled(substring,Style::default().fg(Color::Blue) ));
-        // substrings.push(Text::raw(substring));
-    }
-    tui::widgets::Paragraph::new(substrings.iter()).wrap(false).render(frame, inner_rects[1]);
+    // let content:String= match get_file_content(DirectoryItem::File(("./src/main.rs".to_string(),0))){
+    //     Ok(content)=>content,
+    //     Err(content)=>"No preview ".to_string()
+    // };
+    // let mut substrings:Vec<Text>=Vec::new();
+    // let substring_size:usize=5;
+    //
+    // for i in (0..content.len()).step_by(substring_size){
+    //     let substring:String=content.chars().skip(i).take(substring_size).collect();
+    //     substrings.push(Text::styled(substring,Style::default().fg(Color::Blue) ));
+    //     // substrings.push(Text::raw(substring));
+    // }
+    // tui::widgets::Paragraph::new(substrings.iter()).wrap(false).render(frame, inner_rects[1]);
 
 
 
@@ -124,12 +125,14 @@ pub fn draw_file_list<B: tui::backend::Backend>(
                     let split:Vec<&str>=path.split('/').collect();
                     let string =String::from(format!("📄 {}\n", split[split.len() - 1 as usize]));
                     names.push(Text::raw(string));
+                    paths.push(path.to_string());
                     sizes.push(Text::raw(format!("{}KB\n",size.to_string())));
                 }
                 DirectoryItem::Directory(path)=>{
                     let split:Vec<&str>=path.split('/').collect();
                     let string =String::from(format!("📁 {}\n", split[split.len() - 1 as usize]));
                     names.push(Text::raw(string));
+                    paths.push(path.to_string());
                     sizes.push(Text::raw("\n"))
 
                 }
@@ -152,6 +155,45 @@ pub fn draw_file_list<B: tui::backend::Backend>(
                 .fg(Color::Indexed(2))
             ));
             names.remove(selection_index+1);
+
+            let content:String= match get_file_content(DirectoryItem::File((paths[*selection_index].clone(),0))){
+                Ok(content)=>content,
+                Err(content)=>"No preview ".to_string()
+            };
+            
+            let mut substrings:Vec<String>=content.split('\n').map(|x| x.to_string()).collect();
+            let max_line_length:usize=40;
+            for s in &mut substrings{
+                if s.len() >max_line_length{
+                    s.truncate(max_line_length);
+                }
+                s.push_str("\n");
+            }
+
+
+            let mut texts:Vec<Text>=Vec::new();
+            for s in substrings{
+                texts.push(Text::styled(s, Style::default().fg(Color::Red)));
+
+            }
+            tui::widgets::Paragraph::new(texts.iter()).wrap(false).render(frame, inner_rects[1]);
+
+            
+            // let text=Text::styled(content, Style::default().fg(Color::Blue));
+            // tui::widgets::Paragraph::new(vec![text].iter()).wrap(false).render(frame, inner_rects[1]);
+            // let max_line_length:usize=40;
+            // let mut substrings:Vec<String>=content.split('\n').map(|x| x.to_string()).collect();
+            // for s in &mut substrings{
+            //     if s.len() >max_line_length{
+            //         s.truncate(max_line_length);
+            //     }
+            // }
+            // for i in (0..content.len()){
+            //     substrings
+            // }
+
+
+
 
 
         };

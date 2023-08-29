@@ -1,10 +1,19 @@
 Custom File Explorer derived from https://github.com/PorkSausages/tfex-rs/
 
-Futur implementation:
+Futur implementations:
 
-> A view of the file when moving in the file xplorer
+- Search feature
 
-> Search
+- More Usefull command
+
+- Mode  [ranger-like](https://github.com/ranger/ranger)
+
+---
+
+![image](./img/fileExplorer.png)
+ 
+
+
 
 
 

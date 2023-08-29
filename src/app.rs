@@ -96,6 +96,19 @@ impl App{
 
     pub fn move_back_directory(&mut self){
         let current_directory: &str= self.current_directory.to_str().unwrap();
+        // println!("Current Directory : {}",current_directory);
+        let mut list_tree:Vec<&str>=current_directory.split("/").collect();
+        if list_tree.len() >= 2 {
+        // Supprimer le dernier élément pour remonter d'un répertoire
+            list_tree.pop();
+            let new_directory = list_tree.join("/");
+            // println!("New Directory: {}", new_directory);
+            
+            self.current_directory=PathBuf::from(new_directory);
+        }// else {
+            // println!("Cannot move back further.");
+        //}
+
 
         
 

@@ -40,6 +40,7 @@ fn main() -> Result<(),io::Error>{
                 termion::event::Key::Down=> app.move_selection_down(),
                 termion::event::Key::Up=> app.move_selection_up(),
                 termion::event::Key::Char('\n')=> app.open_folder(),
+                termion::event::Key::Backspace=> app.move_back_directory(),
                 _=>{} 
             }
 
