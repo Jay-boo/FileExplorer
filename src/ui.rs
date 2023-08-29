@@ -1,7 +1,7 @@
 use std::slice::Chunks;
 use std::{io, fs::DirEntry, path::PathBuf};
 use crate::app::App;
-use crate::files::DirectoryItem;
+use crate::files::{DirectoryItem,get_file_content};
 use tui::layout::Direction;
 use tui::style::{Style, Modifier, Color};
 use tui::widgets::{Block,Text, Borders};
@@ -99,6 +99,23 @@ pub fn draw_file_list<B: tui::backend::Backend>(
         .borders(Borders::ALL)
         .title("File preview")
         .render(frame,area_split[1]);
+
+    let content:String= match get_file_content(DirectoryItem::File(("./src/text.txt".to_string(),0))){
+        Ok(content)=>content,
+        Err(content)=>"".to_string()
+    };
+    let mut substrings:Vec<Text>=Vec::new();
+    let substring_size:usize=5;
+
+    for i in (0..content.len()).step_by(substring_size){
+        let substring:String=content.chars().skip(i).take(substring_size).collect();
+        substrings.push(Text::raw(substring));
+    }
+    tui::widgets::Paragraph::new(substrings.iter()).wrap(false).render(frame, inner_rects[1]);
+
+
+
+
     if files.len() !=0{
          for file in files {
             match file {
@@ -117,6 +134,7 @@ pub fn draw_file_list<B: tui::backend::Backend>(
                 }
             }
         }
+        
 
 
 
@@ -138,13 +156,13 @@ pub fn draw_file_list<B: tui::backend::Backend>(
         };
         let columns=(names.len() as f32/ (area.height -2) as f32).ceil() as u16;
         let column_size =100/columns;
-        
         let mut constraints:Vec<Constraint>=Vec::new();
 
 
         for _ in 1..=columns as u32 {
                 constraints.push(Constraint::Percentage(column_size));
         }
+        
 
 
         let chunks=Layout::default()

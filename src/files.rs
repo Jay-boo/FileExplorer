@@ -37,3 +37,17 @@ pub fn get_files_for_current_directory(app: &mut App)-> Result<Vec<DirectoryItem
     };
     Ok(files)
 }
+
+pub fn get_file_content(directoryItem:DirectoryItem)-> Result<String, std::io::Error>{
+    match directoryItem{
+        DirectoryItem::File((path,_))=>{
+            let content=fs::read_to_string(path);
+            content 
+        },
+        _=> Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Not a file"))
+    }
+
+    
+
+}
+
